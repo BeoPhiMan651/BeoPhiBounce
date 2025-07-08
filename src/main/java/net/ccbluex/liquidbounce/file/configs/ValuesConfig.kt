@@ -1,8 +1,3 @@
-/*
- * LiquidBounce Hacked Client
- * A free open source mixin-based injection hacked client for Minecraft using Minecraft Forge.
- * https://github.com/CCBlueX/LiquidBounce/
- */
 package net.ccbluex.liquidbounce.file.configs
 
 import com.google.gson.JsonObject
@@ -17,7 +12,6 @@ import net.ccbluex.liquidbounce.file.FileConfig
 import net.ccbluex.liquidbounce.file.FileManager
 import net.ccbluex.liquidbounce.file.FileManager.PRETTY_GSON
 import net.ccbluex.liquidbounce.file.configs.models.ClientConfiguration
-import net.ccbluex.liquidbounce.ui.client.GuiMainMenu
 import net.ccbluex.liquidbounce.ui.client.altmanager.menus.altgenerator.GuiTheAltening.Companion.apiKey
 import net.ccbluex.liquidbounce.utils.attack.EntityUtils.Targets
 import net.ccbluex.liquidbounce.utils.io.readJson
@@ -25,19 +19,12 @@ import java.io.*
 
 class ValuesConfig(file: File) : FileConfig(file) {
 
-    /**
-     * Load config from file
-     *
-     * @throws IOException
-     */
     @Throws(IOException::class)
     override fun loadConfig() {
         val json = file.readJson() as? JsonObject ?: return
 
         val prevVersion = json["ClientVersion"]?.asString ?: "unknown"
-        // Compare the versions
         if (prevVersion != LiquidBounce.clientVersionText) {
-            // Run backup
             FileManager.backupAllConfigs(prevVersion, LiquidBounce.clientVersionText)
         }
 
@@ -80,17 +67,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
                     ClientConfiguration.fromJson(value)
                 }
 
-                // Deprecated
-                // Compatibility with old versions
-                key.equals("background", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("Enabled")) ClientConfiguration.customBackground = jsonValue["Enabled"].asBoolean
-                    if (jsonValue.has("Particles")) ClientConfiguration.particles = jsonValue["Particles"].asBoolean
-                }
-
                 key.equals("popup", true) -> {
-                    val jsonValue = value as JsonObject
-                    if (jsonValue.has("lastWarningTime")) GuiMainMenu.lastWarningTime = jsonValue["lastWarningTime"].asLong
                 }
 
                 else -> {
@@ -106,11 +83,6 @@ class ValuesConfig(file: File) : FileConfig(file) {
         }
     }
 
-    /**
-     * Save config to file
-     *
-     * @throws IOException
-     */
     @Throws(IOException::class)
     override fun saveConfig() {
         val jsonObject = JsonObject()
@@ -120,9 +92,7 @@ class ValuesConfig(file: File) : FileConfig(file) {
         }
 
         jsonObject.add(ClientRichPresence.name, ClientRichPresence.toJson())
-
         jsonObject.add(Targets.name, Targets.toJson())
-
         jsonObject.add(ClientFixes.name, ClientFixes.toJson())
 
         val theAlteningObject = JsonObject()
@@ -147,9 +117,6 @@ class ValuesConfig(file: File) : FileConfig(file) {
             jsonObject.add(module.name, jsonModule)
         }
 
-        val popupData = JsonObject()
-        GuiMainMenu.lastWarningTime?.let { popupData.addProperty("lastWarningTime", it) }
-        jsonObject.add("popup", popupData)
 
         file.writeText(PRETTY_GSON.toJson(jsonObject))
     }

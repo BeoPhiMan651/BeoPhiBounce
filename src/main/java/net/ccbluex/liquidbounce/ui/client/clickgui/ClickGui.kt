@@ -50,7 +50,7 @@ object ClickGui : GuiScreen() {
 
     // Note: hash key = [Panel.name]
     val panels = linkedSetOf<Panel>()
-    private val hudIcon = ResourceLocation("${CLIENT_NAME.lowercase()}/custom_hud_icon.png")
+    private val hudIcon = ResourceLocation("liquidbounce/custom_hud_icon.png")
     var style: Style = LiquidBounceStyle
     private var mouseX = 0
         set(value) {
