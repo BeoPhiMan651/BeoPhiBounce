@@ -1,0 +1,97 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    outputs:
+      lb_version: ${{ steps.version.outputs.LB_VERSION }}
+      jar_name: ${{ steps.prep.outputs.jar_name }}
+
+    steps:
+      - name: Checkout repository and submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Setup Java 8 (Temurin)
+        uses: actions/setup-java@v4
+        with:
+          distribution: "temurin"
+          java-version: "8"
+          cache: "gradle"
+
+      - name: Read version from src/main/resources/version.txt
+        id: version
+        run: |
+          LB_VERSION=$(cat src/main/resources/version.txt | tr -d ' \n\r')
+          echo "LB_VERSION=$LB_VERSION" >> $GITHUB_OUTPUT
+          echo "LB_VERSION=$LB_VERSION" >> $GITHUB_ENV
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x ./gradlew
+
+      - name: Delete old build JARs
+        run: rm -f ./build/libs/*.jar || true
+
+      - name: Build (no tests, parallel, daemon)
+        run: ./gradlew build --stacktrace
+
+      - name: Prepare artifact and get jar name
+        id: prep
+        run: |
+          cd build/libs
+          JAR=$(find . -type f -name "*.jar" | head -n1)
+          if [ -z "$JAR" ]; then
+            echo "No .jar file found! Build failed."
+            exit 1
+          fi
+          MINECRAFT_VERSION="1.8.9"
+          ARTIFACT_NAME="beophibounce-${{ env.LB_VERSION }}-mc$MINECRAFT_VERSION.jar"
+          mkdir -p ../../artifacts
+          cp "$JAR" "../../artifacts/$ARTIFACT_NAME"
+          echo "jar_name=$ARTIFACT_NAME" >> $GITHUB_OUTPUT
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: BeoPhiBounce-JAR
+          path: artifacts/*.jar
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    if: ${{ needs.build.outputs.lb_version != '' }}
+
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install GitHub CLI
+        run: |
+          sudo apt update
+          sudo apt install gh -y
+
+      - name: Setup git identity
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Download built artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: BeoPhiBounce-JAR
+          path: ./artifacts
+
+      - name: Check JAR file exists
+        run: |
+          FILE="./artifacts/beophibounce-${{ needs.build.outputs.lb_version }}-mc1.8.9.jar"
+          if [ ! -f "$FILE" ]; then
+            echo "JAR file not found: $FILE"
+            exit 1
+          fi
