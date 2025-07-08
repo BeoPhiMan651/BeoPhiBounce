@@ -106,6 +106,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             FastUse,
             FlagCheck,
             Fly,
+            FlyBlockPacket,
             ForceUnicodeChat,
             FreeCam,
             Freeze,

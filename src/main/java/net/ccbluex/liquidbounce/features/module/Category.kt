@@ -19,6 +19,6 @@ enum class Category(val displayName: String) {
     EXPLOIT("Exploit"),
     FUN("Fun");
 
-    val iconResourceLocation = ResourceLocation("${CLIENT_NAME.lowercase()}/tabgui/${name.lowercase()}.png")
+    val iconResourceLocation = ResourceLocation("liquidbounce/tabgui/${name.lowercase()}.png")
 
 }
