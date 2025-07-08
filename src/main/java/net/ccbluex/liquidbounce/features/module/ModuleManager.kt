@@ -95,6 +95,7 @@ object ModuleManager : Listenable, Collection<Module> by MODULE_REGISTRY {
             Criticals,
             Damage,
             Derp,
+            DelayRemover,
             ESP,
             Eagle,
             FakeLag,

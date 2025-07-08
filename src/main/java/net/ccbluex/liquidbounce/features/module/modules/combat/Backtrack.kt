@@ -43,11 +43,11 @@ import java.util.concurrent.ConcurrentLinkedQueue
 
 object Backtrack : Module("Backtrack", Category.COMBAT) {
 
-    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..2000) { mode == "Modern" }
-    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..2000).onChange { _, new ->
+    private val nextBacktrackDelay by int("NextBacktrackDelay", 0, 0..10000) { mode == "Modern" }
+    private val maxDelay: Value<Int> = int("MaxDelay", 80, 0..10000).onChange { _, new ->
         new.coerceAtLeast(minDelay.get())
     }
-    private val minDelay: Value<Int> = int("MinDelay", 80, 0..2000) {
+    private val minDelay: Value<Int> = int("MinDelay", 80, 0..10000) {
         mode == "Modern"
     }.onChange { _, new ->
         new.coerceAtMost(maxDelay.get())
@@ -65,7 +65,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
 
     // Modern
     private val style by choices("Style", arrayOf("Pulse", "Smooth"), "Smooth") { mode == "Modern" }
-    private val distance by floatRange("Distance", 2f..3f, 0f..6f) { mode == "Modern" }
+    private val distance by floatRange("Distance", 2f..3f, 0f..8f) { mode == "Modern" }
     private val smart by boolean("Smart", true) { mode == "Modern" }
 
     // ESP
@@ -74,7 +74,7 @@ object Backtrack : Module("Backtrack", Category.COMBAT) {
         arrayOf("None", "Box", "Model", "Wireframe"),
         "Box"
     ) { mode == "Modern" }.subjective()
-    private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..5f) { espMode == "WireFrame" }
+    private val wireframeWidth by float("WireFrame-Width", 1f, 0.5f..8f) { espMode == "WireFrame" }
 
     private val espColor =
         ColorSettingsInteger(this, "ESPColor") { espMode != "Model" && mode == "Modern" }.with(0, 255, 0)
