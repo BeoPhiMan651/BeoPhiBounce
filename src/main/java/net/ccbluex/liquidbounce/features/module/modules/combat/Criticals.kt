@@ -30,6 +30,7 @@ object Criticals : Module("Criticals", Category.COMBAT) {
             "NoGround",
             "Hop",
             "TPHop",
+            "Grim",
             "Jump",
             "LowJump",
             "CustomMotion",
@@ -69,6 +70,14 @@ object Criticals : Module("Criticals", Category.COMBAT) {
                         C04PacketPlayerPosition(x, y, z, false)
                     )
                     thePlayer.onCriticalHit(entity)
+                }
+                "grim" -> {
+                    if (!thePlayer.onGround) {
+                        sendPackets(
+                            C04PacketPlayerPosition(x, y - 0.000001, z, false)
+                        )
+                        thePlayer.onCriticalHit(entity)
+                    }
                 }
 
                 "ncppacket" -> {
