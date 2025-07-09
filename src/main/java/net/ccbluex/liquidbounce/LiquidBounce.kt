@@ -70,10 +70,10 @@ object LiquidBounce {
      * This has all the basic information.
      */
     const val CLIENT_NAME = "BeoPhiBounce"
-    const val CLIENT_AUTHOR = "CCBlueX"
+    const val CLIENT_AUTHOR = "CCBlueX, BeoPhiMan"
     const val CLIENT_CLOUD = "https://cloud.liquidbounce.net/LiquidBounce"
-    const val CLIENT_WEBSITE = "liquidbounce.net"
-    const val CLIENT_GITHUB = "https://github.com/CCBlueX/LiquidBounce"
+    const val CLIENT_WEBSITE = "https://github.com/BeoPhiMan651/BeoPhiBounce"
+    const val CLIENT_GITHUB = "https://github.com/BeoPhiMan651/BeoPhiBounce"
 
     const val MINECRAFT_VERSION = "1.8.9"
     
