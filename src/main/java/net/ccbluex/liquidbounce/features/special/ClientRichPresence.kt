@@ -106,7 +106,7 @@ object ClientRichPresence : Configurable("DiscordRPC"), MinecraftInstance, Liste
 
             // Check assets contains logo and set logo
             assets["logo"]?.let {
-                setLargeImage(it, "MC $MINECRAFT_VERSION - $CLIENT_NAME $clientVersionText $clientCommit")
+                setLargeImage(it, "MC $MINECRAFT_VERSION - BeoPhiBounce $clientVersionText")
             }
 
             // Check user is in-game
@@ -160,13 +160,16 @@ object ClientRichPresence : Configurable("DiscordRPC"), MinecraftInstance, Liste
      * @throws IOException If reading failed
      */
     private fun loadConfiguration() {
-        val discordConf = HttpClient.get("$CLIENT_CLOUD/discord.json").jsonBody<DiscordConfiguration>() ?: return
+        val stream = javaClass.getResourceAsStream("/special/discord.json") ?: return
 
-        // Check has app id
-        discordConf.appID?.let { appID = it }
+        val json = stream.bufferedReader().use { it.readText() }
+        val jsonObj = JSONObject(json)
 
-        // Import all asset names
-        assets += discordConf.assets
+        appID = jsonObj.optLong("appID", 0L)
+        val assetJson = jsonObj.optJSONObject("assets") ?: JSONObject()
+        for (key in assetJson.keys()) {
+            assets[key] = assetJson.getString(key)
+        }
     }
 }
 
