@@ -92,6 +92,7 @@ object Speed : Module("Speed", Category.MOVEMENT) {
         OnGround,
         SlowHop,
         Legit,
+        heromc,
         CustomSpeed
     )
 
