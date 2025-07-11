@@ -55,7 +55,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
             "GhostBlock", "Vulcan", "S32Packet", "MatrixReduce",
             "IntaveReduce", "Delay", "GrimC03", "Hypixel", "HypixelAir",
             "Click", "BlocksMC", "GrimReduce", "GrimLatest",
-            "Intave"
+            "Intave", "Sus"
         ), "Simple"
     )
 
@@ -129,6 +129,11 @@ object Velocity : Module("Velocity", Category.COMBAT) {
 
     private val pauseOnExplosion by boolean("PauseOnExplosion", true)
     private val ticksToPause by int("TicksToPause", 20, 1..50) { pauseOnExplosion }
+
+    // Sus
+    private val susHorizontal by float("SusHorizontal", 0F, 0F..1F) { mode == "Sus" }
+    private val susVertical by float("SusVertical", 0F, 0F..1F) { mode == "Sus" }
+    private val susChance by int("SusChance", 100, 0..100) { mode == "Sus" }
 
     // TODO: Could this be useful in other modes? (Jump?)
     // Limits
@@ -547,6 +552,28 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                     if (inRange)
                         hasReceivedVelocity = true
                 }
+
+                "sus" -> {
+                    if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
+                        if (kotlin.random.Random.nextInt(100) < susChance) {
+                            if (susHorizontal == 0f && susVertical == 0f) {
+                                event.cancelEvent()
+                                return@handler
+                            }
+
+                            if (susHorizontal == 0f) {
+                                mc.thePlayer.motionY = packet.motionY / 8000.0 * susVertical
+                                event.cancelEvent()
+                                return@handler
+                            }
+
+                            packet.motionX = (packet.motionX * susHorizontal).toInt()
+                            packet.motionY = (packet.motionY * susVertical).toInt()
+                            packet.motionZ = (packet.motionZ * susHorizontal).toInt()
+                        }
+                    }
+                }
+
 
                 "intave" -> {
                     if (packet is S12PacketEntityVelocity && packet.entityID == thePlayer.entityId) {

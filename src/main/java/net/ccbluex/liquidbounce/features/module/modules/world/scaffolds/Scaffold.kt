@@ -107,6 +107,8 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
     private val ticksUntilRotation by intRange("TicksUntilRotation", 3..3, 1..8) {
         scaffoldMode == "Telly"
     }
+    private val autoJump by boolean("AutoJump", false)
+    private val jumpYWhenUserInput by boolean("JumpYWhenUserInput", false) { sameY }
 
     // GodBridge mode sub-values
     private val waitForRots by boolean("WaitForRotations", false) { isGodBridgeEnabled }
@@ -305,6 +307,16 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
         if (shouldGoDown) {
             mc.gameSettings.keyBindSneak.pressed = false
         }
+
+
+        if (autoJump && player.onGround && player.isMoving) {
+            player.jump()
+        }
+
+        if (sprint && player.isMoving && !player.isSprinting) {
+            player.isSprinting = true
+        }
+
 
         if (slow) {
             if (!slowGround || slowGround && player.onGround) {
@@ -592,6 +604,9 @@ object Scaffold : Module("Scaffold", Category.WORLD, Keyboard.KEY_I) {
             }
         } else if (shouldKeepLaunchPosition && launchY <= player.posY) {
             BlockPos(player.posX, launchY - 1.0, player.posZ)
+            val baseY = launchY - 1.0
+            val finalY = if (jumpYWhenUserInput && mc.gameSettings.keyBindJump.isKeyDown) baseY + 1 else baseY
+            BlockPos(player.posX, finalY, player.posZ)
         } else if (player.posY == player.posY.roundToInt() + 0.5) {
             BlockPos(player)
         } else {

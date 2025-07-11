@@ -126,11 +126,57 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
     private var displayString by text("DisplayText", "")
 
-    private val textColorMode by choices("Text-ColorMode", arrayOf("Custom", "Rainbow", "Gradient"), "Custom")
+    private val textColorMode by choices(
+        "Text-ColorMode",
+        arrayOf(
+            "Custom", "Rainbow", "Gradient", "PinkPastel", "RedPastel",
+            "YellowPastel", "SkyLit", "GrayPastel", "GreenPastel"
+        ),
+        "PinkPastel"
+    )
+    private val pinkPastelGradient = listOf(
+        floatArrayOf(1.0f, 0.4f, 0.7f, 1.0f),  // deep pink
+        floatArrayOf(1.0f, 0.65f, 0.85f, 1.0f), // medium pink
+        floatArrayOf(1.0f, 0.8f, 0.9f, 1.0f),   // light pink
+        floatArrayOf(1.0f, 0.95f, 1.0f, 1.0f)   // near white
+    )
+    private val redPastelGradient = listOf(
+        floatArrayOf(1.0f, 0.3f, 0.3f, 1.0f),  // deep red
+        floatArrayOf(1.0f, 0.5f, 0.5f, 1.0f),  // medium red
+        floatArrayOf(1.0f, 0.7f, 0.7f, 1.0f),  // light red
+        floatArrayOf(1.0f, 0.9f, 0.9f, 1.0f)   // near white
+    )
+    private val yellowPastelGradient = listOf(
+        floatArrayOf(1.0f, 0.8f, 0.2f, 1.0f),   // deep yellow
+        floatArrayOf(1.0f, 0.9f, 0.4f, 1.0f),   // medium yellow
+        floatArrayOf(1.0f, 0.95f, 0.7f, 1.0f),  // light yellow
+        floatArrayOf(1.0f, 1.0f, 0.9f, 1.0f)    // near white
+    )
+    private val skyLitGradient = listOf(
+        floatArrayOf(0.2f, 0.8f, 1.0f, 1.0f),   // deep aqua
+        floatArrayOf(0.4f, 0.9f, 1.0f, 1.0f),   // medium aqua
+        floatArrayOf(0.7f, 0.95f, 1.0f, 1.0f),  // light aqua
+        floatArrayOf(0.9f, 1.0f, 1.0f, 1.0f)    // near white
+    )
+    private val grayPastelGradient = listOf(
+        floatArrayOf(0.5f, 0.5f, 0.5f, 1.0f),   // deep gray
+        floatArrayOf(0.7f, 0.7f, 0.7f, 1.0f),   // medium gray
+        floatArrayOf(0.85f, 0.85f, 0.85f, 1.0f), // light gray
+        floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)    // white
+    )
+    private val greenPastelGradient = listOf(
+        floatArrayOf(0.2f, 0.9f, 0.4f, 1.0f),   // deep green
+        floatArrayOf(0.4f, 0.95f, 0.6f, 1.0f),  // medium green
+        floatArrayOf(0.7f, 1.0f, 0.8f, 1.0f),   // light green
+        floatArrayOf(0.9f, 1.0f, 0.95f, 1.0f)   // near white
+    )
 
     private val colors = ColorSettingsInteger(this, "TextColor", applyMax = true) { textColorMode == "Custom" }
 
-    private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
+    private val gradientTextSpeed by float("Text-Gradient-Speed", 2.5f, 1.0f..10f) {
+        textColorMode == "Gradient" || textColorMode == "PinkPastel" || textColorMode == "RedPastel" ||
+                textColorMode == "YellowPastel" || textColorMode == "SkyLit" || textColorMode == "GrayPastel" || textColorMode == "GreenPastel"
+    }
 
     private val maxTextGradientColors by int("Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS)
     { textColorMode == "Gradient" }
@@ -373,19 +419,104 @@ class Text(x: Double = 10.0, y: Double = 10.0, scale: Float = 1F, side: Side = S
 
                 val colorToUse = if (rainbow || gradient) 0 else color.rgb
 
-                GradientFontShader.begin(
-                    gradient,
-                    gradientX,
-                    gradientY,
-                    textGradColors.toColorArray(maxTextGradientColors),
-                    gradientTextSpeed,
-                    gradientOffset
-                ).use {
-                    RainbowFontShader.begin(rainbow, rainbowX, rainbowY, rainbowOffset).use {
-                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
-
+                if (textColorMode == "PinkPastel") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        pinkPastelGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
                         if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
-                            fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else if (textColorMode == "RedPastel") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        redPastelGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else if (textColorMode == "YellowPastel") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        yellowPastelGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else if (textColorMode == "SkyLit") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        skyLitGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else if (textColorMode == "GrayPastel") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        grayPastelGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else if (textColorMode == "GreenPastel") {
+                    GradientFontShader.begin(
+                        true,
+                        gradientX,
+                        gradientY,
+                        greenPastelGradient,
+                        2.5f,
+                        gradientOffset
+                    ).use {
+                        fontRenderer.drawString(displayText, 0F, 2 - heightPadding, Color.WHITE.rgb, shadow)
+                        if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                            fontRenderer.drawString("_", width - underscoreWidth, 0F, Color.WHITE.rgb, shadow)
+                        }
+                    }
+                } else {
+                    GradientFontShader.begin(
+                        gradient,
+                        gradientX,
+                        gradientY,
+                        textGradColors.toColorArray(maxTextGradientColors),
+                        gradientTextSpeed,
+                        gradientOffset
+                    ).use {
+                        RainbowFontShader.begin(rainbow, rainbowX, rainbowY, rainbowOffset).use {
+                            fontRenderer.drawString(displayText, 0F, 2 - heightPadding, colorToUse, shadow)
+                            if (editMode && mc.currentScreen is GuiHudDesigner && editTicks <= 40) {
+                                fontRenderer.drawString("_", width - underscoreWidth, 0F, colorToUse, shadow)
+                            }
                         }
                     }
                 }

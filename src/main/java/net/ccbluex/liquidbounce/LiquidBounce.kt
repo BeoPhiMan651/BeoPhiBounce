@@ -76,7 +76,7 @@ object LiquidBounce {
     const val CLIENT_GITHUB = "https://github.com/BeoPhiMan651/BeoPhiBounce"
 
     const val MINECRAFT_VERSION = "1.8.9"
-    
+
     val clientVersionText = gitInfo["git.build.version"]?.toString() ?: "unknown"
     val clientVersionNumber = clientVersionText.substring(1).toIntOrNull() ?: 0 // version format: "b<VERSION>" on legacy
     val clientCommit = gitInfo["git.commit.id.abbrev"]?.let { "git-$it" } ?: "unknown"
@@ -88,7 +88,7 @@ object LiquidBounce {
      */
     const val IN_DEV = false
 
-    val clientTitle = CLIENT_NAME + " Legacy " + clientVersionText + " " + clientCommit + "  (Skid And Chill) | " + MINECRAFT_VERSION + if (IN_DEV) " | BeoPhiMan BUILD" else ""
+    val clientTitle = CLIENT_NAME + " Legacy " + clientVersionText + " " + clientCommit + "  (BPM) | " + MINECRAFT_VERSION + if (IN_DEV) " | BeoPhiMan BUILD" else ""
 
     var isStarting = true
 

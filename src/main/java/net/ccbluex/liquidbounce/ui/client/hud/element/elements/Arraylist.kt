@@ -46,14 +46,53 @@ class Arraylist(
 ) : Element("Arraylist", x, y, scale, side) {
 
     private val textColorMode by choices(
-        "Text-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
+        "Text-Mode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient", "Sakura", "RedPastel", "Skylit", "PurplePastel", "GreenPastel", "GrayPastel", "YellowPastel"), "Sakura"
+    )
+    private val sakuraGradient = listOf(
+        floatArrayOf(1.0f, 0.65f, 0.85f, 1.0f), // vivid pink
+        floatArrayOf(1.0f, 0.80f, 0.92f, 1.0f), // lighter pink
+        floatArrayOf(1.0f, 0.95f, 1.0f, 1.0f)  // white
+    )
+    private val redPastelGradient = listOf(
+        floatArrayOf(1.0f, 0.4f, 0.4f, 1.0f), // pastel red
+        floatArrayOf(1.0f, 0.65f, 0.65f, 1.0f), // lighter red
+        floatArrayOf(1.0f, 0.9f, 0.9f, 1.0f)  // near white
+    )
+    private val purplePastelGradient = listOf(
+        floatArrayOf(0.7f, 0.4f, 1.0f, 1.0f), // deep purple
+        floatArrayOf(0.8f, 0.6f, 1.0f, 1.0f), // pastel purple
+        floatArrayOf(0.9f, 0.8f, 1.0f, 1.0f), // lighter purple
+        floatArrayOf(1.0f, 0.95f, 1.0f, 1.0f)  // near white
+    )
+    private val greenPastelGradient = listOf(
+        floatArrayOf(0.4f, 0.8f, 0.4f, 1.0f), // deep green
+        floatArrayOf(0.6f, 0.9f, 0.6f, 1.0f), // pastel green
+        floatArrayOf(0.8f, 0.95f, 0.8f, 1.0f), // lighter green
+        floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)  // white
+    )
+    private val grayPastelGradient = listOf(
+        floatArrayOf(0.7f, 0.7f, 0.7f, 1.0f), // dark gray
+        floatArrayOf(0.8f, 0.8f, 0.8f, 1.0f), // pastel gray
+        floatArrayOf(0.9f, 0.9f, 0.9f, 1.0f), // lighter gray
+        floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)  // white
+    )
+    private val yellowPastelGradient = listOf(
+        floatArrayOf(1.0f, 0.9f, 0.4f, 1.0f), // deep yellow
+        floatArrayOf(1.0f, 0.95f, 0.6f, 1.0f), // pastel yellow
+        floatArrayOf(1.0f, 0.98f, 0.8f, 1.0f), // lighter yellow
+        floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)  // white
+    )
+    private val skylitGradient = listOf(
+        floatArrayOf(0.0f, 1.0f, 1.0f, 1.0f), // aqua
+        floatArrayOf(0.5f, 1.0f, 1.0f, 1.0f), // lighter aqua
+        floatArrayOf(1.0f, 1.0f, 1.0f, 1.0f)  // white
     )
     private val textColors = ColorSettingsInteger(this, "TextColor") { textColorMode == "Custom" }.with(blueRibbon)
     private val textFadeColors = ColorSettingsInteger(this, "Text-Fade") { textColorMode == "Fade" }.with(0, 111, 255)
 
     private val textFadeDistance by int("Text-Fade-Distance", 50, 0..100) { textColorMode == "Fade" }
 
-    private val gradientTextSpeed by float("Text-Gradient-Speed", 1f, 0.5f..10f) { textColorMode == "Gradient" }
+    private val gradientTextSpeed by float("Text-Gradient-Speed", 2.5f, 1.0f..10f) { textColorMode == "Gradient" || textColorMode == "Sakura" || textColorMode == "RedPastel" || textColorMode == "Skylit" }
 
     private val maxTextGradientColors by int(
         "Max-Text-Gradient-Colors", 4, 1..MAX_GRADIENT_COLORS
@@ -64,7 +103,7 @@ class Arraylist(
     private val rectMode by choices("Rect-Mode", arrayOf("None", "Left", "Right", "Outline"), "Right")
     private val roundedRectRadius by float("RoundedRect-Radius", 0F, 0F..2F) { rectMode !in setOf("None", "Outline") }
     private val rectColorMode by choices(
-        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Custom"
+        "Rect-ColorMode", arrayOf("Custom", "Fade", "Random", "Rainbow", "Gradient"), "Fade"
     ) { rectMode != "None" }
     private val rectColors =
         ColorSettingsInteger(this, "RectColor", applyMax = true) { isCustomRectSupported }.with(blueRibbon)
@@ -317,31 +356,152 @@ class Arraylist(
                             }
                         }
 
-                        GradientFontShader.begin(
-                            !markAsInactive && textColorMode == "Gradient",
-                            gradientX,
-                            gradientY,
-                            textGradColors.toColorArray(maxTextGradientColors),
-                            gradientTextSpeed,
-                            gradientOffset
-                        ).use {
-                            RainbowFontShader.begin(
-                                !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
+                        if (!markAsInactive && textColorMode == "Sakura") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                sakuraGradient,
+                                gradientTextSpeed,
+                                gradientOffset
                             ).use {
                                 font.drawString(
                                     displayString,
                                     xPos + 1 - if (rectMode == "Right") 3 else 0,
                                     yPos + textY,
-                                    if (markAsInactive) inactiveColor
-                                    else when (textColorMode) {
-                                        "Gradient" -> 0
-                                        "Rainbow" -> 0
-                                        "Random" -> moduleColor
-                                        "Fade" -> textFadeColor
-                                        else -> textCustomColor
-                                    },
-                                    textShadow,
+                                    Color.WHITE.rgb,
+                                    textShadow
                                 )
+                            }
+                        } else if (!markAsInactive && textColorMode == "RedPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                redPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "Skylit") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                skylitGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "PurplePastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                purplePastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "GreenPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                greenPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "GrayPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                grayPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "YellowPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                yellowPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else {
+                            GradientFontShader.begin(
+                                !markAsInactive && textColorMode == "Gradient",
+                                gradientX,
+                                gradientY,
+                                textGradColors.toColorArray(maxTextGradientColors),
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                RainbowFontShader.begin(
+                                    !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
+                                ).use {
+                                    font.drawString(
+                                        displayString,
+                                        xPos + 1 - if (rectMode == "Right") 3 else 0,
+                                        yPos + textY,
+                                        if (markAsInactive) inactiveColor
+                                        else when (textColorMode) {
+                                            "Gradient" -> 0
+                                            "Rainbow" -> 0
+                                            "Random" -> moduleColor
+                                            "Fade" -> textFadeColor
+                                            else -> textCustomColor
+                                        },
+                                        textShadow,
+                                    )
+                                }
                             }
                         }
 
@@ -456,27 +616,148 @@ class Arraylist(
                             }
                         }
 
-                        GradientFontShader.begin(
-                            !markAsInactive && textColorMode == "Gradient",
-                            gradientX,
-                            gradientY,
-                            textGradColors.toColorArray(maxTextGradientColors),
-                            gradientTextSpeed,
-                            gradientOffset
-                        ).use {
-                            RainbowFontShader.begin(
-                                !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
+                        if (!markAsInactive && textColorMode == "Sakura") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                sakuraGradient,
+                                gradientTextSpeed,
+                                gradientOffset
                             ).use {
                                 font.drawString(
-                                    displayString, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
-                                    else when (textColorMode) {
-                                        "Gradient" -> 0
-                                        "Rainbow" -> 0
-                                        "Random" -> moduleColor
-                                        "Fade" -> textFadeColor
-                                        else -> textCustomColor
-                                    }, textShadow
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
                                 )
+                            }
+                        } else if (!markAsInactive && textColorMode == "RedPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                redPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "Skylit") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                skylitGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "PurplePastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                purplePastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "GreenPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                greenPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "GrayPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                grayPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else if (!markAsInactive && textColorMode == "YellowPastel") {
+                            GradientFontShader.begin(
+                                true,
+                                gradientX,
+                                gradientY,
+                                yellowPastelGradient,
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                font.drawString(
+                                    displayString,
+                                    xPos - 1,
+                                    yPos + textY,
+                                    Color.WHITE.rgb,
+                                    textShadow
+                                )
+                            }
+                        } else {
+                            GradientFontShader.begin(
+                                !markAsInactive && textColorMode == "Gradient",
+                                gradientX,
+                                gradientY,
+                                textGradColors.toColorArray(maxTextGradientColors),
+                                gradientTextSpeed,
+                                gradientOffset
+                            ).use {
+                                RainbowFontShader.begin(
+                                    !markAsInactive && textColorMode == "Rainbow", rainbowX, rainbowY, rainbowOffset
+                                ).use {
+                                    font.drawString(
+                                        displayString, xPos - 1, yPos + textY, if (markAsInactive) inactiveColor
+                                        else when (textColorMode) {
+                                            "Gradient" -> 0
+                                            "Rainbow" -> 0
+                                            "Random" -> moduleColor
+                                            "Fade" -> textFadeColor
+                                            else -> textCustomColor
+                                        }, textShadow
+                                    )
+                                }
                             }
                         }
 
