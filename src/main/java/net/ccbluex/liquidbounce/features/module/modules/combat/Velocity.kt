@@ -134,6 +134,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val susHorizontal by float("SusHorizontal", 0F, 0F..1F) { mode == "Sus" }
     private val susVertical by float("SusVertical", 0F, 0F..1F) { mode == "Sus" }
     private val susChance by int("SusChance", 100, 0..100) { mode == "Sus" }
+    private val susDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
 
     // TODO: Could this be useful in other modes? (Jump?)
     // Limits
@@ -554,6 +555,8 @@ object Velocity : Module("Velocity", Category.COMBAT) {
                 }
 
                 "sus" -> {
+                    if (susDisableInAir && !isOnGround(0.5))
+                        return@handler
                     if (packet is S12PacketEntityVelocity && packet.entityID == mc.thePlayer.entityId) {
                         if (kotlin.random.Random.nextInt(100) < susChance) {
                             if (susHorizontal == 0f && susVertical == 0f) {
