@@ -134,7 +134,7 @@ object Velocity : Module("Velocity", Category.COMBAT) {
     private val susHorizontal by float("SusHorizontal", 0F, 0F..1F) { mode == "Sus" }
     private val susVertical by float("SusVertical", 0F, 0F..1F) { mode == "Sus" }
     private val susChance by int("SusChance", 100, 0..100) { mode == "Sus" }
-    private val susDisableInAir by boolean("DisableInAir", true) { mode == "Legit" }
+    private val susDisableInAir by boolean("DisableInAir", true) { mode == "Sus" }
 
     // TODO: Could this be useful in other modes? (Jump?)
     // Limits
